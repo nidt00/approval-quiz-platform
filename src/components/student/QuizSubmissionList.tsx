@@ -30,6 +30,7 @@ export const QuizSubmissionList = ({ submissions, courseTitle }: QuizSubmissionL
         sentBy: currentUser?.id,
         senderName: currentUser?.name,
         sentAt: new Date(),
+        score: submission.score // Include the score in the sent result
       });
       
       localStorage.setItem('sentResults', JSON.stringify(sentResults));
