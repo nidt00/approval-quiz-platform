@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
 import { AuthProvider } from "@/contexts/AuthContext";
 
 // Pages
@@ -47,6 +48,7 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
+            <Footer />
           </div>
         </BrowserRouter>
       </TooltipProvider>
