@@ -32,21 +32,43 @@ export const Footer = () => {
           <div className="flex flex-col items-center md:items-start">
             <h3 className="text-lg font-semibold mb-4">Connect With Us</h3>
             <div className="flex space-x-4 mb-4">
-              <a href="#" className="hover:text-white/80 transition-colors" aria-label="Facebook">
+              <a 
+                href="https://www.facebook.com/share/1USWeeVAjK/" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="hover:text-white/80 transition-colors" 
+                aria-label="Facebook"
+              >
                 <Facebook size={20} />
               </a>
-              <a href="#" className="hover:text-white/80 transition-colors" aria-label="Instagram">
-                <Instagram size={20} />
-              </a>
-              <a href="#" className="hover:text-white/80 transition-colors" aria-label="Twitter">
+              <a 
+                href="https://x.com/n_i_d_t?t=YK1V-WkIvx_QBzlM1bZqGQ&s=09" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="hover:text-white/80 transition-colors" 
+                aria-label="Twitter"
+              >
                 <Twitter size={20} />
               </a>
-              <a href="mailto:contact@testyourlevel.com" className="hover:text-white/80 transition-colors" aria-label="Email">
+              <a 
+                href="https://www.instagram.com/n_i_d_t/profilecard/?igsh=MThhbHJ6dHJreTJjag==" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="hover:text-white/80 transition-colors" 
+                aria-label="Instagram"
+              >
+                <Instagram size={20} />
+              </a>
+              <a 
+                href="mailto:nazrulislam845418@gmail.com" 
+                className="hover:text-white/80 transition-colors" 
+                aria-label="Email"
+              >
                 <Mail size={20} />
               </a>
             </div>
             <p className="text-sm text-white/80">
-              contact@testyourlevel.com
+              nazrulislam845418@gmail.com
             </p>
           </div>
         </div>
