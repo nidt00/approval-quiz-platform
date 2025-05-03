@@ -8,7 +8,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { toast } from '@/components/ui/use-toast';
 
 export const LoginForm = () => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { login, isLoading } = useAuth();
   const navigate = useNavigate();
@@ -16,17 +16,17 @@ export const LoginForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!username || !password) {
+    if (!email || !password) {
       toast({
         title: "Error",
-        description: "Please enter both username and password",
+        description: "Please enter both email and password",
         variant: "destructive",
       });
       return;
     }
     
     try {
-      await login(username, password);
+      await login(email, password);
       toast({
         title: "Success",
         description: "You have successfully logged in",
@@ -53,16 +53,16 @@ export const LoginForm = () => {
         <form onSubmit={handleSubmit}>
           <div className="space-y-4">
             <div className="space-y-2">
-              <label htmlFor="username" className="text-sm font-medium leading-none">
-                Username
+              <label htmlFor="email" className="text-sm font-medium leading-none">
+                Email
               </label>
               <Input
-                id="username"
-                type="text"
-                placeholder="Enter your username"
+                id="email"
+                type="email"
+                placeholder="Enter your email"
                 className="form-input"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
@@ -98,9 +98,6 @@ export const LoginForm = () => {
           <Link to="/register" className="text-quiz-secondary hover:underline">
             Register now
           </Link>
-        </div>
-        <div className="text-xs text-gray-500 text-center">
-          Admin demo login: <span className="font-medium">admin / admin123</span>
         </div>
       </CardFooter>
     </Card>
