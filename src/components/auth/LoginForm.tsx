@@ -10,6 +10,7 @@ import { toast } from '@/components/ui/use-toast';
 export const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { login, isLoading } = useAuth();
   const navigate = useNavigate();
 
@@ -26,6 +27,7 @@ export const LoginForm = () => {
     }
     
     try {
+      setIsSubmitting(true);
       await login(email, password);
       toast({
         title: "Success",
@@ -38,8 +40,13 @@ export const LoginForm = () => {
         description: error.message || "An error occurred during login",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
+
+  // Determine button loading state based on local form submission, not global auth loading
+  const buttonIsLoading = isSubmitting;
 
   return (
     <Card className="w-full max-w-md mx-auto animate-fade-in">
@@ -86,9 +93,9 @@ export const LoginForm = () => {
           <Button 
             type="submit" 
             className="w-full mt-6 bg-quiz-primary hover:bg-opacity-90"
-            disabled={isLoading}
+            disabled={buttonIsLoading}
           >
-            {isLoading ? "Logging in..." : "Login"}
+            {buttonIsLoading ? "Logging in..." : "Login"}
           </Button>
         </form>
       </CardContent>
