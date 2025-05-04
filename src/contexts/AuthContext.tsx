@@ -1,8 +1,7 @@
-
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { User as SupabaseUser, AuthError } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
-import { User, UserRole } from '../types';
+import { User, UserRole, UserStatus } from '../types';
 import { toast } from '@/components/ui/use-toast';
 
 interface AuthContextType {
@@ -24,6 +23,22 @@ export const useAuth = () => {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
+};
+
+// Helper function to convert string to UserStatus
+const toUserStatus = (status: string): UserStatus => {
+  if (status === 'pending' || status === 'approved' || status === 'rejected') {
+    return status as UserStatus;
+  }
+  return 'pending'; // Default value if status is not a valid UserStatus
+};
+
+// Helper function to convert string to UserRole
+const toUserRole = (role: string): UserRole => {
+  if (role === 'admin' || role === 'student') {
+    return role as UserRole;
+  }
+  return 'student'; // Default value if role is not a valid UserRole
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -66,8 +81,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               name: profileData.name,
               email: profileData.email,
               username: profileData.username,
-              role: profileData.role as UserRole,
-              status: profileData.status,
+              role: toUserRole(profileData.role),
+              status: toUserStatus(profileData.status),
               createdAt: new Date(profileData.created_at),
             };
             setCurrentUser(user);
@@ -107,8 +122,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 name: profile.name,
                 email: profile.email,
                 username: profile.username,
-                role: profile.role as UserRole,
-                status: profile.status,
+                role: toUserRole(profile.role),
+                status: toUserStatus(profile.status),
                 createdAt: new Date(profile.created_at),
               };
               setCurrentUser(user);
