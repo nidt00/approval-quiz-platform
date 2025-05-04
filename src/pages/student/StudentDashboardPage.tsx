@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
@@ -43,7 +42,7 @@ const StudentDashboardPage = () => {
         // Fetch quiz courses
         const { data: coursesData, error: coursesError } = await supabase
           .from('quiz_courses')
-          .select('*, questions:quiz_questions(*)');
+          .select('*, quiz_questions(*)');
           
         if (coursesError) throw coursesError;
         
@@ -54,7 +53,7 @@ const StudentDashboardPage = () => {
           description: course.description,
           createdBy: course.created_by,
           createdAt: new Date(course.created_at),
-          questions: course.questions.map((q: any) => ({
+          questions: course.quiz_questions.map((q: any) => ({
             id: q.id,
             text: q.text,
             options: q.options,
@@ -97,10 +96,10 @@ const StudentDashboardPage = () => {
   }
 
   // Function to find the course title by courseId
-  const getCourseTitle = (courseId: string): string => {
+  function getCourseTitle(courseId: string): string {
     const course = quizCourses.find(c => c.id === courseId);
     return course ? course.title : 'Unknown Course';
-  };
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">

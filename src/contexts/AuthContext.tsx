@@ -1,7 +1,7 @@
 
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { User as SupabaseUser, AuthError, AuthResponse } from '@supabase/supabase-js';
-import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { User as SupabaseUser, AuthError } from '@supabase/supabase-js';
+import { supabase } from '@/lib/supabase';
 import { User, UserRole } from '../types';
 import { toast } from '@/components/ui/use-toast';
 
@@ -30,7 +30,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [supabaseUser, setSupabaseUser] = useState<SupabaseUser | null>(null);
-  const [isSupabaseReady, setIsSupabaseReady] = useState(isSupabaseConfigured());
+  const [isSupabaseReady, setIsSupabaseReady] = useState(true);
 
   // Check for user session on initial load
   useEffect(() => {
@@ -66,7 +66,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               name: profileData.name,
               email: profileData.email,
               username: profileData.username,
-              role: profileData.role,
+              role: profileData.role as UserRole,
               status: profileData.status,
               createdAt: new Date(profileData.created_at),
             };
@@ -107,7 +107,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 name: profile.name,
                 email: profile.email,
                 username: profile.username,
-                role: profile.role,
+                role: profile.role as UserRole,
                 status: profile.status,
                 createdAt: new Date(profile.created_at),
               };

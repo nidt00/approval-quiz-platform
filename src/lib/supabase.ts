@@ -1,5 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import type { Database } from '@/integrations/supabase/types';
 
 // This function checks if Supabase is properly configured
 export const isSupabaseConfigured = () => {
@@ -7,5 +8,6 @@ export const isSupabaseConfigured = () => {
   return true;
 };
 
-// Export the supabase client from the integration
+// Export the supabase client and database types from the integration
 export { supabase };
+export type { Database };
