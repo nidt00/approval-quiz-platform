@@ -42,7 +42,11 @@ export const LoginForm = () => {
         title: "Success",
         description: "You have successfully logged in",
       });
-      navigate('/');
+      
+      // Add a slight delay to allow state to update before redirecting
+      setTimeout(() => {
+        navigate('/');
+      }, 500);
     } catch (error: any) {
       console.error("Login error:", error); // Log detailed error
       
@@ -135,7 +139,7 @@ export const LoginForm = () => {
           <Button 
             type="submit" 
             className="w-full mt-6 bg-quiz-primary hover:bg-opacity-90"
-            disabled={isSubmitting}
+            disabled={isSubmitting || isLoading}
           >
             {isSubmitting ? "Logging in..." : "Login"}
           </Button>

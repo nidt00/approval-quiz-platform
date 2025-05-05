@@ -1,4 +1,3 @@
-
 import { supabase } from '@/lib/supabase';
 import { AuthError } from '@supabase/supabase-js';
 
@@ -6,19 +5,7 @@ export async function loginUser(email: string, password: string) {
   console.log("Attempting to sign in with:", email);
   
   try {
-    // Check if user exists in auth schema
-    const { count, error: countError } = await supabase
-      .from('profiles')
-      .select('*', { count: 'exact', head: true })
-      .eq('email', email);
-    
-    if (countError) {
-      console.error("Error checking if user exists:", countError);
-    } else if (count === 0) {
-      console.error("User does not exist in profiles table");
-      throw new Error('No account found with this email');
-    }
-    
+    // Sign in with credentials
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -44,9 +31,17 @@ export async function loginUser(email: string, password: string) {
         throw new Error('Could not verify user status');
       }
       
-      if (profileData && profileData.status !== 'approved') {
+      console.log("Profile data:", profileData);
+      
+      if (!profileData) {
+        await supabase.auth.signOut();
+        throw new Error('User profile not found');
+      }
+      
+      // For admin accounts, don't require approval status check
+      if (profileData.role !== 'admin' && profileData.status !== 'approved') {
         console.warn("User not approved:", profileData.status);
-        // Sign out the user if they are not approved
+        // Sign out the user if they are not approved and not an admin
         await supabase.auth.signOut();
         throw new Error('Your account is pending approval by an administrator');
       }

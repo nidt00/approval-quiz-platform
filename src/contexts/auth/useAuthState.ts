@@ -117,8 +117,8 @@ export function useAuthState() {
               };
               setCurrentUser(user);
 
-              // Check if user is approved
-              if (user.status !== 'approved') {
+              // Check if user is approved - skip this check for admin users
+              if (user.role !== 'admin' && user.status !== 'approved') {
                 console.warn("User is not approved:", user.status);
                 toast({
                   title: "Account Not Approved",
