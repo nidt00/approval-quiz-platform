@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { User as SupabaseUser, AuthError } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
@@ -192,6 +193,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     console.log("Attempting to sign in with:", email);
     
     try {
+      // Check if user exists in auth schema
+      const { count, error: countError } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true })
+        .eq('email', email);
+      
+      if (countError) {
+        console.error("Error checking if user exists:", countError);
+      } else if (count === 0) {
+        console.error("User does not exist in profiles table");
+        throw new Error('No account found with this email');
+      }
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,

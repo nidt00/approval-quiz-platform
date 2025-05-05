@@ -6,11 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from '@/components/ui/use-toast';
+import { Eye, EyeOff } from 'lucide-react';
 
 export const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { login, isLoading } = useAuth();
   const navigate = useNavigate();
 
@@ -29,7 +31,13 @@ export const LoginForm = () => {
     try {
       setIsSubmitting(true);
       console.log("Attempting login with:", email); // Log email for debugging
-      await login(email, password);
+      
+      // Trim the email and password to remove any accidental whitespace
+      const trimmedEmail = email.trim();
+      const trimmedPassword = password.trim();
+      
+      await login(trimmedEmail, trimmedPassword);
+      
       toast({
         title: "Success",
         description: "You have successfully logged in",
@@ -37,18 +45,36 @@ export const LoginForm = () => {
       navigate('/');
     } catch (error: any) {
       console.error("Login error:", error); // Log detailed error
+      
+      // Provide more specific error messages based on the error
+      let errorMessage = "An error occurred during login";
+      
+      if (error.message) {
+        if (error.message.includes("Invalid login credentials")) {
+          errorMessage = "Invalid email or password. Please check your credentials and try again.";
+        } else if (error.message.includes("Email not confirmed")) {
+          errorMessage = "Please verify your email address before logging in.";
+        } else if (error.message.includes("pending approval")) {
+          errorMessage = "Your account is pending approval by an administrator.";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
       toast({
         title: "Login Failed",
-        description: error.message || "An error occurred during login",
+        description: errorMessage,
         variant: "destructive",
+        duration: 5000,
       });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Determine button loading state based on local form submission, not global auth loading
-  const buttonIsLoading = isSubmitting;
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   return (
     <Card className="w-full max-w-md mx-auto animate-fade-in">
@@ -81,23 +107,37 @@ export const LoginForm = () => {
                   Password
                 </label>
               </div>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Enter your password"
-                className="form-input"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter your password"
+                  className="form-input"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <Button 
+                  type="button"
+                  variant="ghost"
+                  className="absolute right-1 top-1/2 transform -translate-y-1/2"
+                  onClick={togglePasswordVisibility}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
             </div>
           </div>
           <Button 
             type="submit" 
             className="w-full mt-6 bg-quiz-primary hover:bg-opacity-90"
-            disabled={buttonIsLoading}
+            disabled={isSubmitting}
           >
-            {buttonIsLoading ? "Logging in..." : "Login"}
+            {isSubmitting ? "Logging in..." : "Login"}
           </Button>
         </form>
       </CardContent>
