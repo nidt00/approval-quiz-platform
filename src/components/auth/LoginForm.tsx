@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,7 +12,7 @@ export const LoginForm = () => {
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { login, isLoading } = useAuth();
+  const { login, isLoading, isAdmin } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -45,7 +44,14 @@ export const LoginForm = () => {
       
       // Add a slight delay to allow state to update before redirecting
       setTimeout(() => {
-        navigate('/');
+        // Redirect based on user role
+        if (isAdmin) {
+          console.log("Admin login detected, redirecting to admin dashboard");
+          navigate('/admin/dashboard');
+        } else {
+          console.log("Student login detected, redirecting to home page");
+          navigate('/');
+        }
       }, 500);
     } catch (error: any) {
       console.error("Login error:", error); // Log detailed error

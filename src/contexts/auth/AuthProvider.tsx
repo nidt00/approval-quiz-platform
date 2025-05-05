@@ -52,6 +52,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await logoutUser();
   };
 
+  // Calculate isAdmin directly from currentUser to ensure it's always up-to-date
+  const isAdmin = currentUser?.role === 'admin';
+
   const value = {
     currentUser,
     isLoading,
@@ -59,7 +62,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     register,
     logout,
     isAuthenticated: !!currentUser,
-    isAdmin: currentUser?.role === 'admin',
+    isAdmin,
     isSupabaseReady,
   };
 
