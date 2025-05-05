@@ -64,18 +64,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsLoading(true);
       
       try {
-        const { data } = await supabase.auth.getSession();
+        console.log("Fetching auth session...");
+        const { data, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error("Error getting session:", error);
+          setIsLoading(false);
+          return;
+        }
+        
+        console.log("Session data:", data);
         if (data?.session?.user) {
           setSupabaseUser(data.session.user);
+          console.log("User from session:", data.session.user);
           
           // Fetch additional user data from profiles table
-          const { data: profileData, error } = await supabase
+          const { data: profileData, error: profileError } = await supabase
             .from('profiles')
             .select('*')
             .eq('id', data.session.user.id)
             .single();
+          
+          if (profileError) {
+            console.error("Error fetching profile:", profileError);
+          }  
             
-          if (profileData && !error) {
+          if (profileData) {
+            console.log("Profile data:", profileData);
             const user: User = {
               id: profileData.id,
               name: profileData.name,
@@ -87,6 +102,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             };
             setCurrentUser(user);
           }
+        } else {
+          console.log("No active session found");
         }
       } catch (error) {
         console.error('Error fetching user session:', error);
@@ -105,8 +122,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (isSupabaseReady) {
       // Set up auth state change subscription
       const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+        console.log("Auth state changed:", event);
         if (session?.user) {
           setSupabaseUser(session.user);
+          console.log("User from auth state change:", session.user);
           
           try {
             // Fetch profile data
@@ -116,7 +135,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               .eq('id', session.user.id)
               .single();
               
-            if (profile && !error) {
+            if (error) {
+              console.error('Error fetching profile:', error);
+            }
+              
+            if (profile) {
+              console.log("Profile from auth state change:", profile);
               const user: User = {
                 id: profile.id,
                 name: profile.name,
@@ -127,8 +151,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 createdAt: new Date(profile.created_at),
               };
               setCurrentUser(user);
-            } else if (error) {
-              console.error('Error fetching profile:', error);
+
+              // Check if user is approved
+              if (user.status !== 'approved') {
+                console.warn("User is not approved:", user.status);
+                toast({
+                  title: "Account Not Approved",
+                  description: "Your account is pending approval by an administrator.",
+                  variant: "destructive",
+                });
+                // Log them out if they're not approved
+                if (user.status === 'pending' || user.status === 'rejected') {
+                  await supabase.auth.signOut();
+                  setCurrentUser(null);
+                  setSupabaseUser(null);
+                }
+              }
             }
           } catch (error) {
             console.error('Error in auth state change handler:', error);
@@ -151,22 +189,50 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     
     setIsLoading(true);
+    console.log("Attempting to sign in with:", email);
     
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       
-      if (error) throw error;
+      console.log("Sign in response:", data, error);
+      
+      if (error) {
+        console.error("Sign in error:", error);
+        throw error;
+      }
+      
+      // Check if the user exists in the profiles table and has approved status
+      if (data.user) {
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', data.user.id)
+          .single();
+        
+        if (profileError) {
+          console.error("Error fetching profile after login:", profileError);
+          throw new Error('Could not verify user status');
+        }
+        
+        if (profileData && profileData.status !== 'approved') {
+          console.warn("User not approved:", profileData.status);
+          // Sign out the user if they are not approved
+          await supabase.auth.signOut();
+          throw new Error('Your account is pending approval by an administrator');
+        }
+      }
       
     } catch (error) {
       const authError = error as AuthError;
+      console.error("Login failed:", authError);
       setIsLoading(false);
       throw new Error(authError.message || 'Error logging in');
+    } finally {
+      setIsLoading(false);
     }
-    
-    setIsLoading(false);
   };
 
   const register = async (name: string, email: string, username: string, password: string) => {

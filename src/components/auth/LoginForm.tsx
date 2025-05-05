@@ -28,6 +28,7 @@ export const LoginForm = () => {
     
     try {
       setIsSubmitting(true);
+      console.log("Attempting login with:", email); // Log email for debugging
       await login(email, password);
       toast({
         title: "Success",
@@ -35,6 +36,7 @@ export const LoginForm = () => {
       });
       navigate('/');
     } catch (error: any) {
+      console.error("Login error:", error); // Log detailed error
       toast({
         title: "Login Failed",
         description: error.message || "An error occurred during login",
