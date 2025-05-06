@@ -48,7 +48,8 @@ export const LoginForm = () => {
       const trimmedEmail = email.trim();
       const trimmedPassword = password.trim();
       
-      await login(trimmedEmail, trimmedPassword);
+      const result = await login(trimmedEmail, trimmedPassword);
+      console.log("Login result:", result);
       
       toast({
         title: "Success",
@@ -57,8 +58,11 @@ export const LoginForm = () => {
       
       console.log("Login successful, isAdmin:", isAdmin);
       
-      // No need to manually redirect here as the useEffect will handle it
-      // when isAuthenticated and isAdmin are updated
+      // Check authentication status after login
+      if (result && result.user) {
+        // Navigation will be handled by the useEffect above when isAuthenticated updates
+        console.log("Login successful, waiting for redirect");
+      }
       
     } catch (error: any) {
       console.error("Login error:", error); // Log detailed error

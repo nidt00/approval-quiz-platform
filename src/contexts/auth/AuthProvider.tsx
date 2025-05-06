@@ -30,13 +30,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
+    console.log("Login called in AuthProvider with:", email);
+    
     try {
       if (!isSupabaseReady) {
         throw new Error('Supabase is not configured properly');
       }
       
       const result = await loginUser(email, password);
-      console.log("Login successful, result:", result);
+      console.log("Login successful in AuthProvider, result:", result);
       
       // Note: We don't need to manually set currentUser here as it will be
       // updated through the auth state change subscription in useAuthState
@@ -76,7 +78,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const value = {
+  // Include all these properties in the context value
+  const value: AuthContextType = {
     currentUser,
     isLoading,
     login,

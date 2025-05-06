@@ -11,6 +11,7 @@ const LoginPage = () => {
   useEffect(() => {
     // Redirect if already logged in
     if (isAuthenticated) {
+      console.log("User already authenticated, redirecting", { isAdmin });
       if (isAdmin) {
         navigate('/admin/dashboard');
       } else {
