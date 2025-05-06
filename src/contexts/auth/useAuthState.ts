@@ -116,22 +116,6 @@ export function useAuthState() {
                 createdAt: new Date(profile.created_at),
               };
               setCurrentUser(user);
-
-              // Check if user is approved - skip this check for admin users
-              if (user.role !== 'admin' && user.status !== 'approved') {
-                console.warn("User is not approved:", user.status);
-                toast({
-                  title: "Account Not Approved",
-                  description: "Your account is pending approval by an administrator.",
-                  variant: "destructive",
-                });
-                // Log them out if they're not approved
-                if (user.status === 'pending' || user.status === 'rejected') {
-                  await supabase.auth.signOut();
-                  setCurrentUser(null);
-                  setSupabaseUser(null);
-                }
-              }
             }
           } catch (error) {
             console.error('Error in auth state change handler:', error);

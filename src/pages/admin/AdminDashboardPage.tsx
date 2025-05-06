@@ -10,13 +10,14 @@ import { User, QuizCourse } from '@/types';
 import { toast } from '@/components/ui/use-toast';
 
 const AdminDashboardPage = () => {
-  const { isAdmin, isAuthenticated } = useAuth();
+  const { isAdmin, isAuthenticated, currentUser } = useAuth();
   const [pendingStudents, setPendingStudents] = useState<User[]>([]);
   const [approvedStudents, setApprovedStudents] = useState<User[]>([]);
   const [quizCourses, setQuizCourses] = useState<QuizCourse[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   
   useEffect(() => {
+    console.log("Admin dashboard loaded, isAdmin:", isAdmin, "currentUser:", currentUser);
     loadStudents();
     loadQuizCourses();
   }, []);
@@ -92,7 +93,7 @@ const AdminDashboardPage = () => {
         id: `course-${Date.now()}`,
         title,
         description,
-        createdBy: 'admin-1', // Using hardcoded admin ID
+        createdBy: currentUser?.id || 'admin-1',
         createdAt: new Date(),
         questions: [],
       };
@@ -124,11 +125,14 @@ const AdminDashboardPage = () => {
     });
   };
 
+  // Double-check authentication and admin status
   if (!isAuthenticated) {
+    console.log("Not authenticated, redirecting to login");
     return <Navigate to="/login" />;
   }
   
   if (!isAdmin) {
+    console.log("Not an admin, redirecting to home");
     return <Navigate to="/" />;
   }
 
