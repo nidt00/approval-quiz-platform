@@ -1,10 +1,10 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { toast } from '@/components/ui/use-toast';
 import { Eye, EyeOff } from 'lucide-react';
 
@@ -13,8 +13,20 @@ export const LoginForm = () => {
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { login, isLoading, isAdmin } = useAuth();
+  const { login, isLoading, isAdmin, currentUser, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Check if user is already logged in
+  useEffect(() => {
+    if (isAuthenticated) {
+      if (isAdmin) {
+        navigate('/admin/dashboard');
+      } else {
+        navigate('/');
+      }
+    }
+  }, [isAuthenticated, isAdmin, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,17 +55,7 @@ export const LoginForm = () => {
         description: "You have successfully logged in",
       });
       
-      // Add a slight delay to allow state to update before redirecting
-      setTimeout(() => {
-        // Redirect based on user role
-        if (isAdmin) {
-          console.log("Admin login detected, redirecting to admin dashboard");
-          navigate('/admin/dashboard');
-        } else {
-          console.log("Student login detected, redirecting to home page");
-          navigate('/');
-        }
-      }, 500);
+      console.log("Login successful, isAdmin:", isAdmin);
     } catch (error: any) {
       console.error("Login error:", error); // Log detailed error
       

@@ -69,6 +69,8 @@ export function useAuthState() {
           }
         } else {
           console.log("No active session found");
+          setCurrentUser(null);
+          setSupabaseUser(null);
         }
       } catch (error) {
         console.error('Error fetching user session:', error);

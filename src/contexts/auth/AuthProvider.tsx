@@ -1,8 +1,9 @@
 
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useEffect } from 'react';
 import { useAuthState } from './useAuthState';
 import { loginUser, registerUser, logoutUser } from './authMethods';
 import { AuthContextType } from './types';
+import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -19,8 +20,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     currentUser, 
     isLoading, 
     setIsLoading,
-    isSupabaseReady 
+    isSupabaseReady,
+    setCurrentUser
   } = useAuthState();
+  
+  // Calculate isAdmin directly from currentUser to ensure it's always up-to-date
+  const isAdmin = !!currentUser && currentUser.role === 'admin';
+  const isAuthenticated = !!currentUser;
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
@@ -29,7 +35,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error('Supabase is not configured properly');
       }
       
-      await loginUser(email, password);
+      const result = await loginUser(email, password);
+      console.log("Login successful, result:", result);
+      
+      // Note: We don't need to manually set currentUser here as it will be
+      // updated through the auth state change subscription in useAuthState
+      
+      return result;
+    } catch (error) {
+      console.error("Login error in AuthProvider:", error);
+      throw error;
     } finally {
       setIsLoading(false);
     }
@@ -42,18 +57,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error('Supabase is not configured properly');
       }
       
-      await registerUser(name, email, username, password);
+      return await registerUser(name, email, username, password);
+    } catch (error) {
+      console.error("Registration error:", error);
+      throw error;
     } finally {
       setIsLoading(false);
     }
   };
 
   const logout = async () => {
-    await logoutUser();
+    try {
+      await logoutUser();
+      setCurrentUser(null);
+    } catch (error) {
+      console.error("Logout error:", error);
+      throw error;
+    }
   };
-
-  // Calculate isAdmin directly from currentUser to ensure it's always up-to-date
-  const isAdmin = currentUser?.role === 'admin';
 
   const value = {
     currentUser,
@@ -61,7 +82,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     login,
     register,
     logout,
-    isAuthenticated: !!currentUser,
+    isAuthenticated,
     isAdmin,
     isSupabaseReady,
   };

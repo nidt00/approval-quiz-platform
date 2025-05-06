@@ -1,12 +1,11 @@
-
-import React, { useEffect, useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import React, { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import { StudentRequestList } from '@/components/admin/StudentRequestList';
 import { StudentList } from '@/components/admin/StudentList';
-import { QuizCourseForm } from '@/components/admin/QuizCourseForm';
 import { QuizCourseList } from '@/components/admin/QuizCourseList';
-import { User, QuizCourse } from '@/types';
+import { QuizCourseForm } from '@/components/admin/QuizCourseForm';
+import { User, QuizCourse, QuizQuestion } from '@/types';
 import { toast } from '@/components/ui/use-toast';
 
 const AdminDashboardPage = () => {
@@ -18,11 +17,13 @@ const AdminDashboardPage = () => {
   
   useEffect(() => {
     console.log("Admin dashboard loaded, isAdmin:", isAdmin, "currentUser:", currentUser);
-    loadStudents();
-    loadQuizCourses();
-  }, []);
-  
-  const loadStudents = () => {
+    if (isAuthenticated && isAdmin) {
+      loadStudents();
+      loadQuizCourses();
+    }
+  }, [isAuthenticated, isAdmin]);
+
+  const loadStudents = async () => {
     const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
     
     setPendingStudents(
@@ -44,16 +45,16 @@ const AdminDashboardPage = () => {
     );
   };
   
-  const loadQuizCourses = () => {
+  const loadQuizCourses = async () => {
     const courses = JSON.parse(localStorage.getItem('quizCourses') || '[]');
     setQuizCourses(courses);
   };
   
-  const handleApproveStudent = (userId: string) => {
+  const handleApproveStudent = (studentId: string) => {
     const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
     
     const updatedUsers = registeredUsers.map((user: any) => {
-      if (user.id === userId) {
+      if (user.id === studentId) {
         return { ...user, status: 'approved' };
       }
       return user;
@@ -63,11 +64,11 @@ const AdminDashboardPage = () => {
     loadStudents();
   };
   
-  const handleRejectStudent = (userId: string) => {
+  const handleRejectStudent = (studentId: string) => {
     const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
     
     const updatedUsers = registeredUsers.map((user: any) => {
-      if (user.id === userId) {
+      if (user.id === studentId) {
         return { ...user, status: 'rejected' };
       }
       return user;
@@ -77,15 +78,15 @@ const AdminDashboardPage = () => {
     loadStudents();
   };
   
-  const handleRemoveStudent = (userId: string) => {
+  const handleRemoveStudent = (studentId: string) => {
     const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
     
-    const updatedUsers = registeredUsers.filter((user: any) => user.id !== userId);
+    const updatedUsers = registeredUsers.filter((user: any) => user.id !== studentId);
     localStorage.setItem('registeredUsers', JSON.stringify(updatedUsers));
     loadStudents();
   };
   
-  const handleCreateQuizCourse = (title: string, description: string) => {
+  const handleCreateCourse = (title: string, description: string) => {
     setIsLoading(true);
     
     setTimeout(() => {
@@ -156,7 +157,7 @@ const AdminDashboardPage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div>
           <QuizCourseForm 
-            onSubmit={handleCreateQuizCourse}
+            onSubmit={handleCreateCourse}
             isLoading={isLoading}
           />
         </div>
