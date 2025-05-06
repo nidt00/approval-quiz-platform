@@ -13,20 +13,25 @@ export const LoginForm = () => {
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { login, isLoading, isAdmin, currentUser, isAuthenticated } = useAuth();
+  const { login, isLoading, isAdmin, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Check if user is already logged in
+  // Check if user is already logged in and redirect accordingly
   useEffect(() => {
     if (isAuthenticated) {
-      if (isAdmin) {
-        navigate('/admin/dashboard');
-      } else {
-        navigate('/');
-      }
+      console.log("User is authenticated in LoginForm, redirecting", { isAdmin });
+      redirectAfterLogin();
     }
-  }, [isAuthenticated, isAdmin, navigate]);
+  }, [isAuthenticated, isAdmin]);
+
+  const redirectAfterLogin = () => {
+    if (isAdmin) {
+      navigate('/admin/dashboard', { replace: true });
+    } else {
+      navigate('/student/dashboard', { replace: true });
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,7 +47,7 @@ export const LoginForm = () => {
     
     try {
       setIsSubmitting(true);
-      console.log("Attempting login with:", email); // Log email for debugging
+      console.log("Attempting login with:", email);
       
       // Trim the email and password to remove any accidental whitespace
       const trimmedEmail = email.trim();
@@ -56,16 +61,11 @@ export const LoginForm = () => {
         description: "You have successfully logged in",
       });
       
-      console.log("Login successful, isAdmin:", isAdmin);
-      
-      // Check authentication status after login
-      if (result && result.user) {
-        // Navigation will be handled by the useEffect above when isAuthenticated updates
-        console.log("Login successful, waiting for redirect");
-      }
+      console.log("Login successful, redirecting user");
+      // The redirect will be handled by the useEffect when isAuthenticated becomes true
       
     } catch (error: any) {
-      console.error("Login error:", error); // Log detailed error
+      console.error("Login error:", error);
       
       // Provide more specific error messages based on the error
       let errorMessage = "An error occurred during login";

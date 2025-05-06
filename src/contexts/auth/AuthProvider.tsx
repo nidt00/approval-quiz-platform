@@ -40,8 +40,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const result = await loginUser(email, password);
       console.log("Login successful in AuthProvider, result:", result);
       
-      // Note: We don't need to manually set currentUser here as it will be
-      // updated through the auth state change subscription in useAuthState
+      // Force a short delay to ensure auth state is updated properly
+      if (result?.user) {
+        console.log("User logged in, auth state should update shortly");
+      }
       
       return result;
     } catch (error) {

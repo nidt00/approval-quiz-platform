@@ -11,11 +11,11 @@ const LoginPage = () => {
   useEffect(() => {
     // Redirect if already logged in
     if (isAuthenticated) {
-      console.log("User already authenticated, redirecting", { isAdmin });
+      console.log("User already authenticated in LoginPage, redirecting", { isAdmin });
       if (isAdmin) {
-        navigate('/admin/dashboard');
+        navigate('/admin/dashboard', { replace: true });
       } else {
-        navigate('/');
+        navigate('/student/dashboard', { replace: true });
       }
     }
   }, [isAuthenticated, isAdmin, navigate]);
