@@ -56,6 +56,10 @@ export const LoginForm = () => {
       });
       
       console.log("Login successful, isAdmin:", isAdmin);
+      
+      // No need to manually redirect here as the useEffect will handle it
+      // when isAuthenticated and isAdmin are updated
+      
     } catch (error: any) {
       console.error("Login error:", error); // Log detailed error
       

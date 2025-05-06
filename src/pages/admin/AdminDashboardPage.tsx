@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -5,7 +6,7 @@ import { StudentRequestList } from '@/components/admin/StudentRequestList';
 import { StudentList } from '@/components/admin/StudentList';
 import { QuizCourseList } from '@/components/admin/QuizCourseList';
 import { QuizCourseForm } from '@/components/admin/QuizCourseForm';
-import { User, QuizCourse, QuizQuestion } from '@/types';
+import { User, QuizCourse, Question } from '@/types'; // Changed QuizQuestion to Question
 import { toast } from '@/components/ui/use-toast';
 
 const AdminDashboardPage = () => {
