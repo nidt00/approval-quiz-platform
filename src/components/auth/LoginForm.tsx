@@ -13,9 +13,22 @@ export const LoginForm = () => {
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { login, isLoading, isAdmin, isAuthenticated } = useAuth();
+  const { login, isLoading, isAdmin, isAuthenticated, currentUser } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Debug auth state
+  useEffect(() => {
+    console.log("Auth state in LoginForm:", { 
+      isAuthenticated, 
+      isAdmin, 
+      currentUser: currentUser ? {
+        id: currentUser.id,
+        email: currentUser.email,
+        role: currentUser.role
+      } : null 
+    });
+  }, [isAuthenticated, isAdmin, currentUser]);
 
   // Check if user is already logged in and redirect accordingly
   useEffect(() => {
@@ -26,9 +39,12 @@ export const LoginForm = () => {
   }, [isAuthenticated, isAdmin]);
 
   const redirectAfterLogin = () => {
+    console.log("Redirecting after login with isAdmin:", isAdmin);
     if (isAdmin) {
+      console.log("Redirecting to admin dashboard");
       navigate('/admin/dashboard', { replace: true });
     } else {
+      console.log("Redirecting to student dashboard");
       navigate('/student/dashboard', { replace: true });
     }
   };
@@ -56,14 +72,31 @@ export const LoginForm = () => {
       const result = await login(trimmedEmail, trimmedPassword);
       console.log("Login result:", result);
       
-      toast({
-        title: "Success",
-        description: "You have successfully logged in",
-      });
-      
-      console.log("Login successful, redirecting user");
-      // The redirect will be handled by the useEffect when isAuthenticated becomes true
-      
+      // Force check the auth context data again
+      if (result?.user) {
+        console.log("Login successful, user data:", result.user);
+        console.log("Current auth state post-login:", { isAdmin, isAuthenticated });
+        
+        toast({
+          title: "Success",
+          description: "You have successfully logged in",
+        });
+        
+        // Wait a moment to ensure auth state is updated before redirecting
+        setTimeout(() => {
+          // Get the latest auth state directly
+          const { isAdmin: updatedIsAdmin } = useAuth();
+          console.log("Checking latest auth state before redirect:", { updatedIsAdmin });
+          
+          if (updatedIsAdmin) {
+            console.log("Explicitly redirecting to admin dashboard");
+            navigate('/admin/dashboard', { replace: true });
+          } else {
+            console.log("Explicitly redirecting to student dashboard");
+            navigate('/student/dashboard', { replace: true });
+          }
+        }, 500);
+      }
     } catch (error: any) {
       console.error("Login error:", error);
       
