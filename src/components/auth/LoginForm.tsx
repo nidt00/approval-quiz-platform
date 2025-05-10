@@ -156,7 +156,7 @@ export const LoginForm = () => {
           <Button 
             type="submit" 
             className="w-full mt-6 bg-quiz-primary hover:bg-opacity-90"
-            disabled={isSubmitting || isLoading}
+            disabled={isLoading}
           >
             {isSubmitting ? "Logging in..." : "Login"}
           </Button>
